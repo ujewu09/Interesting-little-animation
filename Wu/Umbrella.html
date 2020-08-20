@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Umbrella</title>
+		<style>
+			body{
+				margin: 0;
+				height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background-color: linear-gradient(skyblue,lightblue);
+			}
+			.umbralla *::before,
+			.umbralla *::after{
+				content: '';
+				position: absolute;
+			}
+			:root{
+				--font-size:10px;
+			}
+			.umbralla{
+				position:relative;
+				width: 25em;
+				height: 26em;
+				font-size: var(--font-size);
+			}
+			/*伞盖尺寸 */
+			.umbralla .canopy{
+				position: absolute;
+				width: inherit;
+				height: 5.5em;
+				top: 2.5em;
+			}
+			.umbralla .canopy::before{
+				width: inherit;
+				height: 12.5em;
+				background: rgb(100,100,100);
+				border-radius: 12.5em 12.5em 0 0;
+				transform: scaleY(0.4);
+				top: -4em;
+			}
+			.umbralla .canopy::after{
+				width: inherit;
+				height: 1.5em;
+				background-color: #333;
+				top: 4em;
+				border-radius: 50%;
+			}
+			.umbralla .shaft{
+				position: absolute;
+				width: 0.8em;
+				height: 18em;
+				background-color: rgba(100,100,100,0.7);
+				top: 5.5em;
+				left: calc((100% - 0.8em) / 2);
+			}
+			.umbralla .shaft::before{
+				width: 6em;
+				height: 3em;
+				background-color: rgba(100,100,100,0.7);
+				left: calc((100% - 6em) / 2);
+				top: -5.5em;
+				border-radius: 6em 6em 0 0;
+				transform: scaleX(0.1);
+			}
+			.umbralla .shaft::after{
+				box-sizing: border-box;
+				width: 4em;
+				height: 2.5em;
+				border: 1em solid #333;
+				top: 100%;
+				left: calc(50% - 4em + 1em / 2);
+				border-radius: 0 0 2.5em 2.5em;
+				border-top: none;
+			}
+			.umbralla .canopy{
+				transform-origin:top;
+				transform: scale(0.08,4);
+			}
+			.umbralla .canopy::after{
+				transform:scaleY(0);
+			}
+			.umbralla{
+				transform: rotate(-30deg);
+			}
+			.toggle{
+				position: absolute;
+				filter: opacity(0);
+				width: 25em;
+				height: 26em;
+				font-size: var(--font-size);
+				cursor: pointer;
+				z-index: 2;
+			}
+			.toggle:checked ~ .umbralla{
+				transform: rotate(0deg);
+			}
+			.toggle:checked ~ .umbralla .canopy{
+				transform:scale(1,1);
+			}
+			.toggle:checked ~ .umbralla .canopy::after{
+				transform:scaleY(1);
+			}
+			.umbralla,
+			.umbralla .canopy,
+			.umbralla .canopy::after{
+				transition: 0.3s cubic-bezier(0.5,-0.25,0.5,1.25);
+			}
+		</style>
+	</head>
+	<body>
+		<input type="checkbox" class="toggle" />
+		<figure class="umbralla">
+			<div class="canopy"></div>
+			<div class="shaft"></div>
+		</figure>
+	</body>
+</html>

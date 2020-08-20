@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style>
+		canvas{
+			border: 1px solid #000;
+			display: block;
+			margin: 50px auto
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas" width="480" height="640"></canvas>
+	<script>
+		// 构造函数
+		var canvas = document.getElementById("canvas");
+		var context = canvas.getContext("2d");
+
+		// 0 游戏初始化
+		// 0.1定义好游戏的五个阶段
+		var START = 0;
+		var STARTING = 1;
+		var RUNNING = 2;
+		var PAUSE = 3;
+		var GAMEOVER = 4;
+		// 0.2 定义一个自己的状态，时刻的去和上面的五个状态做比较
+		var state = START;
+		// 0.3
+		var WIDTH = 480;
+		var HEIGHT = 640;
+		// 0.4
+		var score = 0;
+		// 0.5
+		var life = 3;
+
+		// 1.游戏开始前
+		// 1.1 加载背景图片
+		// 1.1.1背景图片的对象
+		var bg = new Image();
+		bg.src = "images/background.png";
+		// 1.1.2背景图片的数据
+		var BG = {
+			imgs :　bg,
+			width : 480,
+			height: 852   
+		}
+		// 1.1.3背景图片的构造函数
+		function Bg(config){
+			this.imgs = config.imgs;
+			this.width = config.width;
+			this.height = config.height;
+
+			// 绘制图片的坐标
+			this.x1 = 0;
+			this.y1 = 0;
+			this.x2 = 0;
+			this.y2 = -this.height;
+
+			// 绘制图片
+			this.paint = function(){
+				context.drawImage(this.imgs,this.x1,this.y1);
+				context.drawImage(this.imgs,this.x2,this.y2);
+			}
+
+			// 图片的运动
+			this.step = function(){
+				this.y1 ++;
+				this.y2 ++;
+				// 判断图片的临界点
+				if(this.y1 == this.height){
+					this.y1 = -this.height;
+				}
+				if(this.y2 == this.height){
+					this.y2 = -this.height;
+				}
+			}
+		}
+		// 1.1.4 创建对象
+		var sky = new Bg(BG);
+		console.log(sky);
+
+		// 1.2
+		var logo = new Image();
+		logo.src = "images/start.png";
+
+		// 2.游戏开始前
+		// 2.1 开始前动画的对象
+		var loadings = [];
+		loadings[0] = new Image();
+		loadings[0].src = "images/game_loading1.png";
+		loadings[1] = new Image();
+		loadings[1].src = "images/game_loading2.png";
+		loadings[2] = new Image();
+		loadings[2].src = "images/game_loading3.png";
+		loadings[3] = new Image();
+		loadings[3].src = "images/game_loading4.png";
+		// 2.2 开始前动画图片的数据
+		var LOADINGS = {
+			imgs : loadings,
+			length : loadings.length,
+			width : 186,
+			height : 38
+		}
+		// 2.3 开始前动画的构造函数
+		function Loading(config){
+			this.imgs = config.imgs;
+			this.length = config.length;
+			this.width = config.width;
+			this.height = config.height;
+			// 定义一个索引
+			this.startIndex = 0;
+			// 绘制
+			this.paint = function(){
+				context.drawImage(this.imgs[this.startIndex],0,HEIGHT - this.height);
+			}
+
+			// 定义一个速度
+			this.time = 0;
+			this.step = function(){
+				this.time++;
+				if(this.time % 3 ==0){   
+					this.startIndex ++;
+				}
+
+				// 当动画运行完成进入下一个阶段
+				if (this.startIndex == this.length) {
+					state = RUNNING;
+				}
+			}
+		}
+		// 2.4 创建对象
+		var loading = new Loading(LOADINGS);
+		// 2.5 绑定事件
+		canvas.onclick = function(){
+			if(state == START){
+				state = STARTING;
+			}
+		}
+		// 3. 游戏的运行阶段
+		// 3.1 我方飞机
+		// 3.1.1 我方飞机的图片
+		var heros = [];
+		heros[0] = new Image();
+		heros[0].src = "images/hero1.png";
+		heros[1] = new Image();
+		heros[1].src = "images/hero2.png";
+
+		heros[2] = new Image();
+		heros[2].src = "images/hero_blowup_n1.png";
+		heros[3] = new Image();
+		heros[3].src = "images/hero_blowup_n2.png";
+		heros[4] = new Image();
+		heros[4].src = "images/hero_blowup_n3.png";
+		heros[5] = new Image();
+		heros[5].src = "images/hero_blowup_n4.png";
+		// 3.1.2 我方飞机的数据
+		var HEROS = {
+			imgs : heros,
+			length : heros.length,
+			width : 99,
+			height : 124,
+			frame : 2   //状态，区分正常和撞击以后的状态
+
+		}
+		// 3.1.3 我方飞机的构造函数
+		function Hero(config){
+			this.imgs = config.imgs;
+			this.length = config.length;
+			this.width = config.width;
+			this.height = config.height;
+			this.frame = config.frame;
+			// 定义索引
+			this.startIndex = 0;
+			// 绘制坐标
+			this.x = WIDTH / 2 - this.width / 2;
+			this.y = HEIGHT - 150;
+
+			// 增加标识符
+			this.down = false;    //表示一直没有撞击
+			// 增加标识符
+			this.candel = false;  //表示撞击以后的动画是否运行完成，完成以后的恢复运行的状态
+
+			this.paint = function(){
+				context.drawImage(this.imgs[this.startIndex],this.x,this.y)
+			}
+			this.step = function(){
+				if(!this.down){   //没有撞击，角标应该是在0和1之间切换
+					this.startIndex ++;
+					this.startIndex = this.startIndex % 2;
+				}else{
+					this.startIndex ++;
+					if(this.startIndex == this.length){
+						life -- ;
+						if(life == 0){
+							state = GAMEOVER;
+							this.startIndex = this.length - 1;   //优化
+						}else{
+							hero = new Hero(HEROS)
+						}
+					}
+				}
+			}
+			//我方飞机增加射击方法
+			this.time = 0;
+			this.shoot = function(){
+				this.time ++;
+				if(this.time % 3 == 0){
+					bullets.push(new Bullet(BULLET))
+				}
+
+				
+			}
+			// 撞击以后触发
+			this.bang = function(){
+				this.down = true;
+			}
+
+
+		}
+		// 3.1.4 我放飞机的对象
+		var hero = new Hero(HEROS)
+		// 3.1.5 绑定鼠标移动事件
+		canvas.onmousemove = function(e){
+			if(state == RUNNING){
+				var x = e.offsetX;
+				var y = e.offsetY;
+				hero.x = x - hero.width / 2;
+				hero.y = y - hero.height / 2;
+			}
+		}
+
+
+		// 3.2 绘制子弹
+		// 3.2.1 图片
+		var bullet = new Image();
+		bullet.src = "images/bullet1.png";
+		// 3.2.2 数据
+		var BULLET = {
+			imgs : bullet,
+			width: 9 ,
+			height : 21
+		}
+		// 3.2.3 构造函数
+		function Bullet(config){
+			this.imgs = config.imgs;
+			this.width = config.width;
+			this.height = config.height;
+			// 坐标
+			this.x =  hero.x + hero.width / 2 - this.width / 2;
+			this.y = hero.y - this.height;
+			// 绘制
+			this.paint = function(){
+				context.drawImage(this.imgs,this.x,this.y)
+			}
+			// 运动
+			this.step = function(){
+				this.y -= 10;
+			}
+			this.candel = false;
+			this.bang = function(){
+				this.candel = true;
+			}
+		}
+		// 3.2.4 存放所有子弹
+		var bullets = [];
+		// 3.2.5 绘制所有子弹
+		function bulletsPaint(){
+			for(var i = 0; i < bullets.length;i++){
+				bullets[i].paint()
+			}
+		}
+		// 3.2.6 绘制所有子弹的运动
+		function bulletsStep(){
+			for(var i = 0; i < bullets.length;i++){
+				bullets[i].step()
+			}
+		}
+		// 3.2.7 删除子弹
+		function bulletsDel(){
+			for(var i = 0; i < bullets.length;i++){
+				if(bullets[i].y < -bullets[i].height || bullets[i].candel){
+					bullets.splice(i,1)
+				}
+			}
+			// console.log(bullets)
+		}
+		// 3.3 敌方飞机
+		// 3.3.1 敌方飞机的图片（3种）
+		//小号
+		var enemy1 = [];   
+		enemy1[0] = new Image();
+		enemy1[0].src = "images/enemy1.png";
+
+		enemy1[1] = new Image();
+		enemy1[1].src = "images/enemy1_down1.png";
+		enemy1[2] = new Image();
+		enemy1[2].src = "images/enemy1_down2.png";
+		enemy1[3] = new Image();
+		enemy1[3].src = "images/enemy1_down3.png";
+		enemy1[4] = new Image();
+		enemy1[4].src = "images/enemy1_down4.png";
+		
+		//中号
+		var enemy2 = [];    
+		enemy2[0] = new Image();
+		enemy2[0].src = "images/enemy2.png";
+
+		enemy2[1] = new Image();
+		enemy2[1].src = "images/enemy2_down1.png";
+		enemy2[2] = new Image();
+		enemy2[2].src = "images/enemy2_down2.png";
+		enemy2[3] = new Image();
+		enemy2[3].src = "images/enemy2_down3.png";
+		enemy2[4] = new Image();
+		enemy2[4].src = "images/enemy2_down4.png";
+		//大号
+		var enemy3 = [];
+		enemy3[0] = new Image();
+		enemy3[0].src = "images/enemy3_n1.png";    
+		enemy3[1] = new Image();
+		enemy3[1].src = "images/enemy3_n2.png";
+
+		enemy3[2] = new Image();
+		enemy3[2].src = "images/enemy3_down1.png";
+		enemy3[3] = new Image();
+		enemy3[3].src = "images/enemy3_down2.png";
+		enemy3[4] = new Image();
+		enemy3[4].src = "images/enemy3_down3.png";
+		enemy3[5] = new Image();
+		enemy3[5].src = "images/enemy3_down4.png";
+		enemy3[6] = new Image();
+		enemy3[6].src = "images/enemy3_down5.png";
+		enemy3[7] = new Image();
+		enemy3[7].src = "images/enemy3_down6.png";
+		// 3.3.2 数据
+		var ENEMY1 = {
+			imgs : enemy1,
+			length : enemy1.length,
+			width : 57,
+			height : 51,
+			type : 1,    //增加标识符，区分飞机的种类。小号的设置成1
+			frame : 1,    //增加标识符，1种状态就为1，2种状态就为2
+			life : 1,
+			score : 1
+		}
+		var ENEMY2 = {
+			imgs : enemy2,
+			length : enemy2.length,
+			width : 69,
+			height : 95,
+			type : 2,    //增加标识符，区分飞机的种类。中号的设置成2
+			frame : 1,    //增加标识符，1种状态就为1，2种状态就为2
+			life : 3,
+			score : 5
+		}
+		var ENEMY3 = {
+			imgs : enemy3,
+			length : enemy3.length,
+			width : 169,
+			height : 258,
+			type : 3,    //增加标识符，区分飞机的种类。大号的设置成3
+			frame : 2,    //增加标识符，1种状态就为1，2种状态就为2
+			life : 10,
+			score : 15
+		}
+		// 3.3.3 构造函数
+		function Enemy(config){
+			this.imgs = config.imgs;
+			this.length = config.length;
+			this.width = config.width;
+			this.height = config.height;
+			this.type = config.type;
+			this.frame = config.frame;
+			this.life = config.life;
+			this.score = config.score;
+
+			this.startIndex = 0;
+			this.down = false;
+			this.candel = false;
+
+			// 绘制的坐标
+			this.x = Math.random() * (WIDTH - this.width);
+			this.y = -this.height;
+			// 绘制方法
+			this.paint = function(){
+				context.drawImage(this.imgs[this.startIndex],this.x,this.y)
+			}
+			// 运动方法
+			this.step = function(){
+				if(!this.down){   //正常
+					// 小号的，中号  角标始终是0
+					// 大号的是在0和1之间切换
+					this.startIndex ++;
+					this.startIndex = this.startIndex % this.frame;
+
+					this.y += 2;
+				}else {    //爆炸
+					this.startIndex ++;
+					if(this.startIndex == this.length){
+						this.candel = true;
+						this.startIndex = this.length - 1;
+					}
+				}
+			}
+
+			// 爆炸的方法
+			this.bang = function(){
+				this.life -- ;
+				if(this.life == 0){
+					this.down = true;
+					score += this.score;
+				}
+			}
+			//检测是否撞击
+			this.checkHit = function(wo){
+				// 1.撞击到子弹
+				// 2.撞击到我方飞机
+				return wo.y + wo.height > this.y 
+				&& wo.x + wo.width > this.x
+				&& wo.y < this.y + this.height
+				&& wo.x < this.x + this.width;
+			}
+		}
+		// 3.3.4 创建数组 存储敌方飞机
+		var enemies = [];
+		// 3.3.5 创建飞机
+		function enterEnemies(){
+			var num = Math.random();
+			if(num <　0.1){
+				enemies.push(new Enemy(ENEMY1))
+			}else if(num < 0.15){
+				enemies.push(new Enemy(ENEMY2))
+			}else if(num < 0.16){
+				enemies.push(new Enemy(ENEMY3))
+			}
+		}
+		// 3.3.6 绘制
+		function paintEnemies(){
+			for(var i = 0;i < enemies.length;i++){
+				enemies[i].paint()
+			}
+		}
+		// 3.3.7 运动
+		function stepEnemies(){
+			for(var i = 0;i < enemies.length;i++){
+				enemies[i].step()
+			}
+		}
+		//3.3.8 删除
+		function delEnemies(){
+			for(var i = 0;i < enemies.length;i++){
+				if(enemies[i].y > HEIGHT || enemies[i].candel){
+					enemies.splice(i,1)
+				}
+			}
+		}
+		// 3.4 检测撞击
+		function hitEnemies(){
+			for(var i = 0;i < enemies.length;i++){
+				if(enemies[i].checkHit(hero)){
+					enemies[i].bang()
+					hero.bang()
+				}
+				for(var j = 0; j < bullets.length;j++){
+					if(enemies[i].checkHit(bullets[j])){
+						enemies[i].bang();
+						bullets[j].bang();
+					}
+				}
+			}
+		}
+		// 3.5我方飞机的生命和得分
+		function paintText(){
+			context.font = "bold 30px 微软雅黑";
+			context.fillText("SCORE:" + score,10,30);
+			context.fillText("LIFE:" + life,380,30)
+		}
+
+		// 4.暂停阶段
+		canvas.onmouseover = function(){
+			if(state == PAUSE){
+				state = RUNNING;
+			}
+		}
+		canvas.onmouseout = function(){
+			if(state == RUNNING){
+				state = PAUSE;
+			}
+		}
+		var pause = new Image();
+		pause.src = "images/game_pause_nor.png";
+
+
+		// 5.gameover阶段
+		function paintOver(){
+			context.font = "bold 50px 微软雅黑";
+			context.fillText("GAME OVER",110,300);
+		}
+
+
+
+
+		setInterval(function(){
+			sky.paint()
+			sky.step()
+			if(state == START){
+				context.drawImage(logo,40,0)
+			}else if(state == STARTING){
+				loading.paint();
+				loading.step();
+			}else if(state == RUNNING){
+				hero.paint();
+				hero.step();
+				hero.shoot();
+
+				bulletsPaint();
+				bulletsStep();
+				bulletsDel();
+
+				enterEnemies();
+				paintEnemies();
+				stepEnemies();
+				delEnemies();
+				hitEnemies();
+
+				paintText();
+			}else if(state == PAUSE){
+				hero.paint();
+
+				bulletsPaint();
+
+				paintEnemies();
+
+				paintText();
+
+				context.drawImage(pause,10,10)
+			}else if(state == GAMEOVER){
+				hero.paint();
+				bulletsPaint();
+				paintEnemies();
+				paintText();
+				paintOver()
+			}
+		}, 100)
+	</script>
+</body>
+</html>

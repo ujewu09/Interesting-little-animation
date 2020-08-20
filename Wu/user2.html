@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				padding: 0;
+				margin: 0;
+			}
+			body{
+				padding-left:50px;
+				padding-top: 15px;
+			}
+			article{
+				border:solid 5px silver;
+				width: 400px;
+				height: 500px;
+				padding: 10px;
+				display: flex;
+				flex-direction: column;
+			}
+			article section{
+				flex: 1;
+				background: blueviolet;
+				background-clip: content-box;
+				padding: 10px;
+				text-align: center;
+				display: flex;
+				flex-direction: column;
+				color: #fff;
+			}
+			article section div{
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				font-size: 25px;
+				justify-content: center;
+			}
+			article section span{
+				padding: 10px;
+				background:#333;
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+		<article>
+			<section>
+				<div>up</div>
+				<span>up</span>
+			</section>
+			<section>
+				<div>left</div>
+				<span>left</span>
+			</section>
+			<section>
+				<div></div>
+				<span onclick="up(this)">right</span>
+			</section>
+		</article>
+		
+		<script>
+			function up(el){
+				let order = getComputedStyle(el.parentElement,null).order;
+				el.parentElement.style.order = order * 1 - 1;
+			}
+		</script>
+		<!-- <header></header>
+		<main></main>
+		<footer></footer> -->
+	</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<!-- 引入样式 -->
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+	</head>
+	<body>
+		<div id="app">
+			<template>
+				<div>
+					<el-select v-model="prov" style="width:167px;margin-right: 25px;">
+						<el-option v-for="option in arr" :value="option.name" :key="option.id">
+							{{ option.name }}
+						</el-option>
+					</el-select>
+					<el-select v-model="city" style="width:167px;margin-right: 25px;">
+						<el-option v-for="option in cityArr" :value="option.name" :key="option.ss">
+							{{ option.name }}
+						</el-option>
+					</el-select>
+					<el-select v-model="district" v-if="district" style="width:167px;">
+						<el-option v-for="option in districtArr" :value="option.name" :key="option.dd">
+							{{ option.name }}
+						</el-option>
+					</el-select>
+				</div>
+			</template>
+		</div>
+	</body>
+	<script src="https://unpkg.com/vue/dist/vue.js"></script>
+	<!-- import JavaScript -->
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<script src="./ares.js"></script>
+	<script>
+		new Vue({
+			name: 'Cselect',
+			el: '#app',
+			data: function() {
+				return {
+					visible: false,
+					arr: area.arrAll,
+					prov: '省份',
+					city: '城市',
+					district: '区域',
+					cityArr: [],
+					districtArr: [],
+				}
+			},
+			methods: {
+				updateCity: function() {
+					for (var i in this.arr) {
+						var obj = this.arr[i];
+						if (obj.name) {
+							if (obj.name == this.prov) {
+								this.cityArr = obj.sub;
+								break;
+							}
+						}
+					}
+					this.city = this.cityArr[1].name;
+				},
+				updateDistrict: function() {
+					for (var i in this.cityArr) {
+						var obj = this.cityArr[i];
+						if (obj.name == this.city) {
+							this.districtArr = obj.sub;
+							break;
+						}
+					}
+					if (this.districtArr && this.districtArr.length > 0 && this.districtArr[1].name) {
+						this.district = this.districtArr[1].name;
+					} else {
+						this.district = '';
+					}
+				}
+			},
+			beforeMount() {
+				this.updateCity();
+				this.updateDistrict();
+
+			},
+			watch: {
+
+				prov: function() {
+					this.updateCity();
+					this.updateDistrict();
+				},
+				city: function() {
+					this.updateDistrict();
+				}
+			}
+
+		})
+	</script>
+</html>
