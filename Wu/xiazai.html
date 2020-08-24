@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+		<input type="button" value="点我下载文件" onclick="Download()" />
+	<div id="download">
+
+		</div>
+		<!-- <a href="aa/aaa/1.jpg" target="_blank" download="1.jpg">下载该文件</a> -->
+		<script>
+			function Download() {
+				var download = document.getElementById("download")
+				// = $("#download");
+				download.append(
+					"<a id=\"down\" href=\"aaaa.txt\" target=\"_blank\" download=\"aaaa.txt\" style=\"display:none\">下载该文件</a>");
+				console.log(download);
+				$("#down")[0].click();
+			}
+		</script>
+	</body>
+</html>

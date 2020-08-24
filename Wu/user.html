@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			* {
+				padding: 0;
+				margin: 0;
+			}
+
+			body {
+				/* padding-left: 100px; */
+				padding-top: 100px;
+			}
+
+			article {
+				border: solid 5px silver;
+				width: 550px;
+				height: 550px;
+				display: flex;
+				flex-direction: column;
+				/* justify-content: center; */
+				justify-content: space-evenly;
+				/* flex-wrap: wrap; */
+				/* flex-wrap: wrap; */
+			}
+
+			article * {
+				width: 100px;
+				height: 100px;
+				background-color: blueviolet;
+				/* background-clip: content-box; */
+				padding: 10px;
+				box-sizing: border-box;
+				color: white;
+			}
+
+			input[type="text"] {}
+
+
+
+			input[type="password"] {
+
+				background-image: url(BG.gif);
+
+			}
+
+
+
+			input[type="submit"] {
+
+
+
+				color: white;
+
+			}
+
+
+
+			input[type="reset"] {
+
+
+
+				color: white;
+
+			}
+
+
+
+			input[type="radio"] {
+
+				/*In FF,Some radio style like background-color not been supported*/
+
+				margin: 10px;
+
+			}
+
+
+
+			input[type="checkbox"] {
+
+				/*In FF,Some checkbox style like background-color not been supported*/
+
+				margin: 10px;
+
+			}
+
+
+
+			input[type="button"] {}
+		</style>
+	</head>
+	<body>
+		<!-- <main>111</main> -->
+		<article>
+			<div>1</div>
+			<div>2</div>
+			<div>3</div>
+		</article>
+
+		<dl>
+			<dt>This is normal textbox:<dd><input type="text" name="">
+
+			<dt>This is password textbox:<dd><input type="password" name="">
+
+			<dt>This is submit button:<dd><input type="submit">
+
+			<dt>This is reset button:<dd><input type="reset">
+
+			<dt>This is radio:<dd><input type="radio" name="ground1"> <input type="radio" name="ground1">
+
+			<dt>This is checkbox:<dd><input type="checkbox" name="ground2"> <input type="checkbox" name="ground2">
+
+			<dt>This is normal button:<dd><input type="button" value="i'm button">
+
+		</dl>
+	</body>
+</html>

@@ -1,0 +1,25 @@
+https://doc.vux.li/zh-CN/components/v-chart.html    VChart Ui
+
+http://v1.iviewui.com/docs/guide/install      iView Ui
+
+https://antdv.com/docs/vue/getting-started-cn/    Ant Design Vue
+
+https://blog.csdn.net/qiaoliang_123/article/details/103068772   神奇的::v-deep
+
+https://juejin.im/post/6844903828047806471#heading-12    CSS形状
+
+https://blog.csdn.net/yf19990720/article/details/107469937?utm_medium=distribute.pc_category.none-task-blog-hot-3.nonecase&depth_1-utm_source=distribute.pc_category.none-task-blog-hot-3.nonecase&request_id=     用canvas画飞机大战
+
+https://segmentfault.com/a/1190000023290140     66个css特效
+
+https://segmentfault.com/a/1190000023312732    20个值得学习的Vue开源项目
+
+https://segmentfault.com/a/1190000019844617    前端实战项目
+
+https://segmentfault.com/a/1190000022790026    前端js常用的60种工具
+
+https://www.xiabingbao.com/demos/20190304/vue-curd.html  vue实现数据得增删改查
+
+http://ueditor.baidu.com/website/index.html 富文本
+
+https://blog.csdn.net/weixin_47222576/article/details/107926045?utm_medium=distribute.pc_category.none-task-blog-hot-4.nonecase&depth_1-utm_source=distribute.pc_category.none-task-blog-hot-4.nonecase&request_id=  微信小程序接口封装
